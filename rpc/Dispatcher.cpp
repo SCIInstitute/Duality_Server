@@ -8,7 +8,7 @@
 #include "mocca/log/LogManager.h"
 #include "mocca/net/ConnectionFactorySelector.h"
 
-MoccaJsonServer::MoccaJsonServer(const std::vector<mocca::net::Endpoint>& endpoints) {
+Dispatcher::Dispatcher(const std::vector<mocca::net::Endpoint>& endpoints) {
     std::vector<std::unique_ptr<mocca::net::IMessageConnectionAcceptor>> acceptors;
     for (const auto& ep : endpoints) {
         acceptors.push_back(mocca::net::ConnectionFactorySelector::bind(ep));
@@ -17,11 +17,11 @@ MoccaJsonServer::MoccaJsonServer(const std::vector<mocca::net::Endpoint>& endpoi
     registerReflection();
 }
 
-MoccaJsonServer::~MoccaJsonServer() {
+Dispatcher::~Dispatcher() {
     join();
 }
 
-void MoccaJsonServer::sendReply(const JsonCpp::Value root, const std::vector<mocca::net::MessagePart>& binary, std::shared_ptr<const mocca::net::ConnectionID> connectionID) {
+void Dispatcher::sendReply(const JsonCpp::Value root, const std::vector<mocca::net::MessagePart>& binary, std::shared_ptr<const mocca::net::ConnectionID> connectionID) {
     JsonCpp::FastWriter writer;
     std::string jsonStr = writer.write(root);
     mocca::net::Message message;
@@ -31,7 +31,7 @@ void MoccaJsonServer::sendReply(const JsonCpp::Value root, const std::vector<moc
     aggregator_->send(std::move(envelope));
 }
 
-void MoccaJsonServer::run() {
+void Dispatcher::run() {
     const auto timeout(std::chrono::milliseconds(100));
 
     while (!isInterrupted()) {
@@ -43,7 +43,7 @@ void MoccaJsonServer::run() {
                 JsonCpp::Value root = parseMessage(message);
 
                 // sanity checks on request
-                if (!root.isMember(rpc::methodKey()) || !root.isMember(rpc::paramsKey())) {
+                if (!root.isMember(rpc::methodKey())) {
                     throw Error("Malformatted request: Required field 'method' or 'params' is missing", __FILE__, __LINE__);
                 }
 
@@ -79,7 +79,7 @@ void MoccaJsonServer::run() {
     }
 }
 
-JsonCpp::Value MoccaJsonServer::parseMessage(const mocca::net::Message& message) {
+JsonCpp::Value Dispatcher::parseMessage(const mocca::net::Message& message) {
     JsonCpp::Reader reader;
     JsonCpp::Value root;
     std::string json(reinterpret_cast<const char*>(message[0]->data()), message[0]->size());
@@ -90,11 +90,11 @@ JsonCpp::Value MoccaJsonServer::parseMessage(const mocca::net::Message& message)
     return root;
 }
 
-void MoccaJsonServer::registerMethod(Method method) {
+void Dispatcher::registerMethod(Method method) {
     methods_.push_back(std::move(method));
 }
 
-void MoccaJsonServer::registerReflection() {
+void Dispatcher::registerReflection() {
     MethodDescription description(rpc::describe(), {});
     Method method(description, [this](const JsonCpp::Value&) {
         JsonCpp::Value result;

@@ -10,10 +10,10 @@
 
 #include <vector>
 
-class MoccaJsonServer : public mocca::Runnable {
+class Dispatcher : public mocca::Runnable {
 public:
-    MoccaJsonServer(const std::vector<mocca::net::Endpoint>& endpoints);
-    ~MoccaJsonServer();
+    Dispatcher(const std::vector<mocca::net::Endpoint>& endpoints);
+    ~Dispatcher();
 
     void registerMethod(Method method);
 

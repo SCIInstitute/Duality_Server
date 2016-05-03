@@ -1,5 +1,7 @@
 #include "rpc/Dispatcher.h"
 
+#include "handlers/Handlers.h"
+
 #include "mocca/base/Memory.h"
 #include "mocca/base/CommandLineParser.h"
 #include "mocca/log/LogManager.h"
@@ -44,6 +46,8 @@ int main(int argc, const char** argv) {
 
     TCPEndpoint tcpEndpoint("*", "10123");
     WSEndpoint wsEndpoint("*", "8080");
+        
+    mocca::fs::Path scenePath("d:/dmc/workspace/duality/duality-server/build/scenes");
 
     CommandLineParser parser;
     parser.addOption(TCPPortOption(tcpEndpoint));
@@ -59,8 +63,11 @@ int main(int argc, const char** argv) {
 
     try {
         std::vector<Endpoint> endpoints{ tcpEndpoint, wsEndpoint };
-        auto server = mocca::make_unique<MoccaJsonServer>(endpoints);
-        // TODO
+        auto dispatcher = mocca::make_unique<Dispatcher>(endpoints);
+        
+        dispatcher->registerMethod(Method(ListScenesHandler::description(), std::bind(&ListScenesHandler::handle, scenePath, std::placeholders::_1)));
+
+        dispatcher->start();
 
         while (!exitFlag) {
             std::this_thread::sleep_for(std::chrono::milliseconds(500));

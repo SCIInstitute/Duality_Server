@@ -10,7 +10,7 @@
 class Method {
 public:
     using ReturnType = std::pair<JsonCpp::Value, std::vector<mocca::net::MessagePart>>;
-    using CallbackType = std::function<ReturnType(JsonCpp::Value)>;
+    using CallbackType = std::function<ReturnType(const JsonCpp::Value&)>;
     Method(const MethodDescription& description, const CallbackType callback);
 
     std::string name() const;
