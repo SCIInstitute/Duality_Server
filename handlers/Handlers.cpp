@@ -4,6 +4,8 @@
 
 #include <fstream>
 
+using namespace mocca::net;
+
 const MethodDescription& ListScenesHandler::description() {
     static MethodDescription description("ListScenes", {});
     return description;
