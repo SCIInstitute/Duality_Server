@@ -46,7 +46,8 @@ int main(int argc, const char** argv) {
     TCPEndpoint tcpEndpoint("*", "10123");
     WSEndpoint wsEndpoint("*", "8080");
 
-    mocca::fs::Path scenePath("d:/dmc/workspace/duality/duality-server/build/scenes");
+    mocca::fs::Path scenePath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data/scenes");
+    mocca::fs::Path downloadBasePath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data/datasets");
 
     CommandLineParser parser;
     parser.addOption(TCPPortOption(tcpEndpoint));
@@ -65,6 +66,8 @@ int main(int argc, const char** argv) {
 
         dispatcher->registerMethod(
             Method(ListScenesHandler::description(), std::bind(&ListScenesHandler::handle, scenePath, std::placeholders::_1)));
+        dispatcher->registerMethod(
+            Method(DownloadHandler::description(), std::bind(&DownloadHandler::handle, downloadBasePath, std::placeholders::_1)));
 
         dispatcher->start();
 
