@@ -68,6 +68,7 @@ int main(int argc, const char** argv) {
             Method(ListScenesHandler::description(), std::bind(&ListScenesHandler::handle, scenePath, std::placeholders::_1)));
         dispatcher->registerMethod(
             Method(DownloadHandler::description(), std::bind(&DownloadHandler::handle, downloadBasePath, std::placeholders::_1)));
+        dispatcher->registerMethod(Method(SCIRunHandler::description(), &SCIRunHandler::handle));
 
         dispatcher->start();
 

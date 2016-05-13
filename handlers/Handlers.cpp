@@ -1,6 +1,7 @@
 #include "handlers/Handlers.h"
 
 #include "mocca/fs/Filesystem.h"
+#include "mocca/log/LogManager.h"
 
 #include <fstream>
 
@@ -32,18 +33,27 @@ const MethodDescription& DownloadHandler::description() {
 }
 
 Method::ReturnType DownloadHandler::handle(const mocca::fs::Path& basePath, const JsonCpp::Value& params) {
-    mocca::net::Message binary;
     mocca::fs::Path path = basePath + params["path"].asString();
-    std::ifstream file(path.toString().data(), std::ios::in | std::ios::binary | std::ios::ate);
-    if (file.is_open()) {
-        int size = static_cast<int>(file.tellg());
-        auto buffer = std::make_shared<std::vector<uint8_t>>(size);
-        file.seekg(0, std::ios::beg);
-        file.read(reinterpret_cast<char*>(buffer->data()), size);
-        file.close();
-        binary.push_back(buffer);
-    }
+    auto binary = mocca::net::MessagePart(mocca::fs::readBinaryFile(path));
+    JsonCpp::Value root;
+    root["type"] = "g3d"; // FIXME
+    return std::make_pair(root, std::vector<mocca::net::MessagePart>{binary});
+}
+
+const mocca::net::MethodDescription& SCIRunHandler::description() {
+    static MethodDescription::ParameterDescription pathParam("params", JsonCpp::ValueType::objectValue, JsonCpp::Value());
+    static MethodDescription description("scirun", {pathParam});
+    return description;
+}
+
+mocca::net::Method::ReturnType SCIRunHandler::handle(const JsonCpp::Value& params) {
+    /* FIXME: JUST A DUMMY IMPLEMENTATION */
+    int intVal = static_cast<int>(params["params"]["val"].asFloat());
+    bool even = (intVal % 2 == 0);
+    mocca::fs::Path path = even ? mocca::fs::Path("file1.g3d") : mocca::fs::Path("file2.g3d");
+    LINFO("Sending file " << path.toString());
+    auto binary = mocca::net::MessagePart(mocca::fs::readBinaryFile(path));
     JsonCpp::Value root;
     root["type"] = "g3d";
-    return std::make_pair(root, binary);
+    return std::make_pair(root, std::vector<mocca::net::MessagePart>{binary});
 }
