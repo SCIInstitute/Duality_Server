@@ -1,0 +1,42 @@
+#include "scirunserver/SysUtil.Posix.h"
+
+#include "common/Error.h"
+
+#include "mocca/base/StringTools.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#include <chrono>
+#include <thread>
+
+void scirunserver::executeSCIRun(const mocca::fs::Path& binaryPath, const std::string& args) {
+    const int errorCode = 17;
+    pid_t childPid = fork();
+    if (childPid == 0) { // this process is child
+        std::string binaryPathStr = binaryPath.toString();
+        auto argVec = mocca::splitString<std::string>(args, ' ');
+        std::unique_ptr<char*[]> cArgs(new char*[args.size()]);
+        cArgs[0] = const_cast<char*>(binaryPathStr.data());
+        for (size_t i = 0; i < argVec.size(); ++i) {
+            cArgs[i + 1] = const_cast<char*>(argVec[i].data());
+        }
+        cArgs[argVec.size() + 1] = NULL;
+        chdir(binaryPath.directory().data());
+        if (execv(binaryPathStr.data(), cArgs.get()) == -1) {
+            exit(errorCode);
+        }
+    } else if (childPid > 0) { // this process is parent
+        // wait for child to terminate
+        int status;
+        pid_t pid = wait(&status);
+        if (WIFEXITED(status) && WEXITSTATUS(status) == errorCode) {
+            throw Error("Could not execute SCIRun (child process terminated with error)", __FILE__, __LINE__);
+        }
+    } else {
+        throw Error("Could not execute SCIRun (fork failed)", __FILE__, __LINE__);
+    }
+}

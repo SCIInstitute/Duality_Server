@@ -22,5 +22,6 @@ ADD_SUBDIRECTORY(handlers)
 
 ADD_EXECUTABLE(server
 	${CMAKE_CURRENT_LIST_DIR}/main.cpp
+	$<TARGET_OBJECTS:common>
 	$<TARGET_OBJECTS:mocca>
 	$<TARGET_OBJECTS:handlers>)

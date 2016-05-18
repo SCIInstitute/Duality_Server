@@ -1,7 +1,11 @@
 #include "handlers/Handlers.h"
 
+#include "common/Error.h"
+#include "handlers/SceneReader.h"
+
 #include "mocca/base/CommandLineParser.h"
 #include "mocca/base/Memory.h"
+#include "mocca/fs/Filesystem.h"
 #include "mocca/log/LogManager.h"
 #include "mocca/net/ConnectionFactorySelector.h"
 #include "mocca/net/rpc/Dispatcher.h"
@@ -46,8 +50,11 @@ int main(int argc, const char** argv) {
     TCPEndpoint tcpEndpoint("*", "10123");
     WSEndpoint wsEndpoint("*", "8080");
 
+    mocca::fs::Path sciRunPath("C:/Users/dmc/SCIRun5/bin/SCIRun.exe");
+
     mocca::fs::Path scenePath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data/scenes");
     mocca::fs::Path downloadBasePath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data/datasets");
+    mocca::fs::Path networksPath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data/networks");
 
     CommandLineParser parser;
     parser.addOption(TCPPortOption(tcpEndpoint));
@@ -55,26 +62,37 @@ int main(int argc, const char** argv) {
 
     try {
         parser.parse(argc, argv);
-    } catch (const CommandLineParser::ParserError& err) {
-        LERROR(err.what() << std::endl);
-        std::exit(1);
-    }
 
-    try {
         std::vector<Endpoint> endpoints{tcpEndpoint, wsEndpoint};
         auto dispatcher = mocca::make_unique<Dispatcher>(endpoints);
 
+        ListScenesHandler listScenesHandler;
+        DownloadHandler downloadHandler(downloadBasePath);
+        SCIRunHandler sciRunHandler(sciRunPath, networksPath);
+
+        SceneReader sceneReader(scenePath);
+        sceneReader.registerObserver(&listScenesHandler);
+        sceneReader.registerObserver(&downloadHandler);
+        sceneReader.registerObserver(&sciRunHandler);
+
+        sceneReader.start();
+
         dispatcher->registerMethod(
-            Method(ListScenesHandler::description(), std::bind(&ListScenesHandler::handle, scenePath, std::placeholders::_1)));
+            Method(ListScenesHandler::description(), std::bind(&ListScenesHandler::handle, &listScenesHandler, std::placeholders::_1)));
         dispatcher->registerMethod(
-            Method(DownloadHandler::description(), std::bind(&DownloadHandler::handle, downloadBasePath, std::placeholders::_1)));
-        dispatcher->registerMethod(Method(SCIRunHandler::description(), &SCIRunHandler::handle));
+            Method(DownloadHandler::description(), std::bind(&DownloadHandler::handle, &downloadHandler, std::placeholders::_1)));
+        dispatcher->registerMethod(
+            Method(SCIRunHandler::description(), std::bind(&SCIRunHandler::handle, &sciRunHandler, std::placeholders::_1)));
 
         dispatcher->start();
 
         while (!exitFlag) {
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }
+
+    } catch (const CommandLineParser::ParserError& err) {
+        LERROR(err.what() << std::endl);
+        std::exit(1);
     } catch (const std::exception& err) {
         LERROR(err.what() << std::endl);
         std::exit(1);
