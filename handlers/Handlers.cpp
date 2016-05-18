@@ -78,7 +78,7 @@ mocca::net::Method::ReturnType SCIRunHandler::handle(const JsonCpp::Value& param
 
     {
         /* FIXME: JUST A DUMMY IMPLEMENTATION */
-        int intVal = static_cast<int>(params["params"]["val"].asFloat());
+        int intVal = static_cast<int>(params["values"]["input_dimension_x"].asFloat());
         bool even = (intVal % 2 == 0);
         mocca::fs::Path path = even ? mocca::fs::Path("file1.g3d") : mocca::fs::Path("file2.g3d");
         LINFO("Sending file " << path.toString());
