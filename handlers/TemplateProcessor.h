@@ -9,10 +9,7 @@
 
 class TemplateProcessor {
 public:
-    TemplateProcessor(const std::string& templ, const JsonCpp::Value& parameters);
-
-    std::string createScript(const JsonCpp::Value& params) const;
-
+    static std::string createScript(const std::string& templ, const JsonCpp::Value& params);
 private:
     struct VariableIndex {
         std::ptrdiff_t position;
@@ -20,11 +17,4 @@ private:
 
         bool operator<(const VariableIndex& other) const;
     };
-
-    void buildIndex();
-
-private:
-    std::string m_templ;
-    JsonCpp::Value m_parameters;
-    std::vector<VariableIndex> m_indices; // indices must be sorted by position
 };

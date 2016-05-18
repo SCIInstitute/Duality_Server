@@ -13,7 +13,7 @@ std::string SysUtilImpl::getWindowsError() {
 
     LPSTR messageBuffer = nullptr;
     size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-        errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+                                 errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
 
     std::string message(messageBuffer, size);
 
@@ -34,19 +34,19 @@ SysUtilImpl::TempHandles::~TempHandles() {
     CloseHandle(pi.hThread);
 }
 
-void SysUtilImpl::execute(const mocca::fs::Path& binary, const std::vector<std::string> args) {
-    auto commandLine = binary.toString() + " " + mocca::joinString(args, " ");
+void SysUtilImpl::execute(const mocca::fs::Path& binary, const std::vector<std::string>& args) {
+    auto commandLine = binary.toString() + " " + mocca::joinCollection(begin(args), end(args), " ");
     TempHandles handles;
     if (!CreateProcessA(NULL,                                  // Application name
-        const_cast<char*>(commandLine.data()), // Command line
-        NULL,                                  // Process handle not inheritable
-        NULL,                                  // Thread handle not inheritable
-        FALSE,                                 // Set handle inheritance to FALSE
-        0,                                     // No creation flags
-        NULL,                                  // Use parent's environment block
-        NULL,                                  // Use parent's starting directory
-        &handles.si,                           // Pointer to STARTUPINFO structure
-        &handles.pi)) {
+                        const_cast<char*>(commandLine.data()), // Command line
+                        NULL,                                  // Process handle not inheritable
+                        NULL,                                  // Thread handle not inheritable
+                        FALSE,                                 // Set handle inheritance to FALSE
+                        0,                                     // No creation flags
+                        NULL,                                  // Use parent's environment block
+                        NULL,                                  // Use parent's starting directory
+                        &handles.si,                           // Pointer to STARTUPINFO structure
+                        &handles.pi)) {
         throw Error("Error starting SCIRun: " + getWindowsError(), __FILE__, __LINE__);
     }
     WaitForSingleObject(handles.pi.hProcess, INFINITE);

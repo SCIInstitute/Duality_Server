@@ -9,7 +9,7 @@
 
 class SysUtilImpl {
 public:
-    static void execute(const mocca::fs::Path& binary, const std::vector<std::string> args);
+    static void execute(const mocca::fs::Path& binary, const std::vector<std::string>& args);
 
 private:
     static std::string getWindowsError();

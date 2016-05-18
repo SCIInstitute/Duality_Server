@@ -5,38 +5,40 @@
 #include "mocca/fs/Filesystem.h"
 #include "mocca/log/LogManager.h"
 
-#include <cassert>
-
 using namespace mocca::net;
 
-void AbstractHandler::notify(const std::vector<JsonCpp::Value> scenes) {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    notifyImpl(scenes);
-}
-
-mocca::net::Method::ReturnType AbstractHandler::handle(const JsonCpp::Value& params) {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    return handleImpl(params);
-}
+ListScenesHandler::ListScenesHandler(const mocca::fs::Path& basePath)
+    : m_basePath(basePath) {}
 
 const MethodDescription& ListScenesHandler::description() {
     static MethodDescription description("listScenes", {});
     return description;
 }
 
-void ListScenesHandler::notifyImpl(const std::vector<JsonCpp::Value>& scenes) {
-    m_scenes = scenes;
-}
-
-Method::ReturnType ListScenesHandler::handleImpl(const JsonCpp::Value& params) {
+Method::ReturnType ListScenesHandler::handle(const JsonCpp::Value& params) {
     Method::ReturnType result;
-    for (const auto& scene : m_scenes) {
-        result.first.append(scene);
+    auto dirContents = mocca::fs::directoryContents(m_basePath);
+    for (const auto& path : dirContents) {
+        if (mocca::fs::isDirectory(path)) {
+            mocca::fs::Path scenePath = path + "scene.json";
+            if (!mocca::fs::exists(scenePath)) {
+                LERROR("Scene definition file '" << scenePath.toString() << "' does not exist");
+            } else {
+                JsonCpp::Reader reader;
+                JsonCpp::Value root;
+                std::string jsonStr = mocca::fs::readTextFile(scenePath);
+                if (!reader.parse(jsonStr, root)) {
+                    LERROR("Error parsing JSON: " << reader.getFormattedErrorMessages());
+                } else {
+                    result.first.append(root);
+                }
+            }
+        }
     }
     return result;
 }
 
-DownloadHandler::DownloadHandler(const mocca::fs::Path basePath)
+DownloadHandler::DownloadHandler(const mocca::fs::Path& basePath)
     : m_basePath(basePath) {}
 
 const MethodDescription& DownloadHandler::description() {
@@ -45,27 +47,9 @@ const MethodDescription& DownloadHandler::description() {
     return description;
 }
 
-void DownloadHandler::notifyImpl(const std::vector<JsonCpp::Value>& scenes) {
-    for (const auto& scene : scenes) { // FIXME: too much code duplication
-        const auto& sceneNode = scene["scene"];
-        for (const auto& objectNode : sceneNode) {
-            const auto& sourceNode = objectNode["source"];
-            if (sourceNode["type"] != "download") {
-                continue;
-            }
-            auto name = objectNode["name"].asString();
-            auto filename = sourceNode["filename"].asString();
-            mocca::fs::Path path = m_basePath + name + filename;
-            if (!mocca::fs::exists(path)) {
-                LERROR("Referenced file '" << path.toString() << "' does not exist");
-            }
-            m_fileMap[name] = path;
-        }
-    }
-}
-
-Method::ReturnType DownloadHandler::handleImpl(const JsonCpp::Value& params) {
-    mocca::fs::Path path = m_fileMap[params["name"].asString()];
+Method::ReturnType DownloadHandler::handle(const JsonCpp::Value& params) {
+    std::string sceneName = params["scene"].asString();
+    mocca::fs::Path path = m_basePath + sceneName + "download" + params["filename"].asString();
     auto binary = mocca::net::MessagePart(mocca::fs::readBinaryFile(path));
     JsonCpp::Value root;
     root["type"] = "g3d"; // FIXME
@@ -74,7 +58,7 @@ Method::ReturnType DownloadHandler::handleImpl(const JsonCpp::Value& params) {
 
 SCIRunHandler::SCIRunHandler(const mocca::fs::Path& executablePath, const mocca::fs::Path& networksPath)
     : m_executablePath(executablePath)
-    , m_networksPath(networksPath) {}
+    , m_basePath(networksPath) {}
 
 const mocca::net::MethodDescription& SCIRunHandler::description() {
     static MethodDescription::ParameterDescription pathParam("params", JsonCpp::ValueType::objectValue, JsonCpp::Value());
@@ -82,43 +66,25 @@ const mocca::net::MethodDescription& SCIRunHandler::description() {
     return description;
 }
 
-void SCIRunHandler::notifyImpl(const std::vector<JsonCpp::Value>& scenes) {
-    for (const auto& scene : scenes) {
-        const auto& sceneNode = scene["scene"];
-        for (const auto& objectNode : sceneNode) {
-            const auto& sourceNode = objectNode["source"];
-            if (sourceNode["type"] != "scirun") {
-                continue;
-            }
-            auto name = objectNode["name"].asString();
-            auto filename = sourceNode["filename"].asString();
-            mocca::fs::Path path = m_networksPath + name + filename;
-            if (!mocca::fs::exists(path)) {
-                LERROR("Referenced file '" << path.toString() << "' does not exist");
-            }
+mocca::net::Method::ReturnType SCIRunHandler::handle(const JsonCpp::Value& params) {
+    std::string sceneName = params["scene"].asString();
+    mocca::fs::Path path = m_basePath + sceneName + "SCIRun" + params["filename"].asString();
+    std::string templ = mocca::fs::readTextFile(path);
+    std::string script = TemplateProcessor::createScript(templ, params["values"]);
+    mocca::fs::Path tmpPath("temp.py");
+    TempFile tmpFile(tmpPath, script);
+    SysUtil::execute(m_executablePath, {"-s " + tmpPath.toString(), "--headless", "--no_splash"});
 
-            std::string templ = mocca::fs::readTextFile(path);
-            m_processors.insert(std::make_pair(name, TemplateProcessor(templ, sourceNode["parameters"])));
-        }
+
+    {
+        /* FIXME: JUST A DUMMY IMPLEMENTATION */
+        int intVal = static_cast<int>(params["params"]["val"].asFloat());
+        bool even = (intVal % 2 == 0);
+        mocca::fs::Path path = even ? mocca::fs::Path("file1.g3d") : mocca::fs::Path("file2.g3d");
+        LINFO("Sending file " << path.toString());
+        auto binary = mocca::net::MessagePart(mocca::fs::readBinaryFile(path));
+        JsonCpp::Value root;
+        root["type"] = "g3d";
+        return std::make_pair(root, std::vector<mocca::net::MessagePart>{binary});
     }
-}
-
-mocca::net::Method::ReturnType SCIRunHandler::handleImpl(const JsonCpp::Value& params) {
-    auto it = m_processors.find(params["name"].asString());
-    assert(it != end(m_processors));
-    const auto& processor = it->second;
-    std::string script = processor.createScript(params["values"]);
-    TempFile tmpFile(mocca::fs::Path("temp.py"), script);
-    SysUtil::execute(m_executablePath, {"-s temp.py", "--headless", "--no_splash"});
-
-
-    /* FIXME: JUST A DUMMY IMPLEMENTATION */
-    int intVal = static_cast<int>(params["params"]["val"].asFloat());
-    bool even = (intVal % 2 == 0);
-    mocca::fs::Path path = even ? mocca::fs::Path("file1.g3d") : mocca::fs::Path("file2.g3d");
-    LINFO("Sending file " << path.toString());
-    auto binary = mocca::net::MessagePart(mocca::fs::readBinaryFile(path));
-    JsonCpp::Value root;
-    root["type"] = "g3d";
-    return std::make_pair(root, std::vector<mocca::net::MessagePart>{binary});
 }

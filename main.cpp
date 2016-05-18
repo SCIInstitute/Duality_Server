@@ -1,7 +1,6 @@
 #include "handlers/Handlers.h"
 
 #include "common/Error.h"
-#include "handlers/SceneReader.h"
 
 #include "mocca/base/CommandLineParser.h"
 #include "mocca/base/Memory.h"
@@ -51,10 +50,7 @@ int main(int argc, const char** argv) {
     WSEndpoint wsEndpoint("*", "8080");
 
     mocca::fs::Path sciRunPath("C:/Users/dmc/SCIRun5/bin/SCIRun.exe");
-
-    mocca::fs::Path scenePath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data/scenes");
-    mocca::fs::Path downloadBasePath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data/datasets");
-    mocca::fs::Path networksPath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data/networks");
+    mocca::fs::Path basePath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data");
 
     CommandLineParser parser;
     parser.addOption(TCPPortOption(tcpEndpoint));
@@ -66,16 +62,9 @@ int main(int argc, const char** argv) {
         std::vector<Endpoint> endpoints{tcpEndpoint, wsEndpoint};
         auto dispatcher = mocca::make_unique<Dispatcher>(endpoints);
 
-        ListScenesHandler listScenesHandler;
-        DownloadHandler downloadHandler(downloadBasePath);
-        SCIRunHandler sciRunHandler(sciRunPath, networksPath);
-
-        SceneReader sceneReader(scenePath);
-        sceneReader.registerObserver(&listScenesHandler);
-        sceneReader.registerObserver(&downloadHandler);
-        sceneReader.registerObserver(&sciRunHandler);
-
-        sceneReader.start();
+        ListScenesHandler listScenesHandler(basePath);
+        DownloadHandler downloadHandler(basePath);
+        SCIRunHandler sciRunHandler(sciRunPath, basePath);
 
         dispatcher->registerMethod(
             Method(ListScenesHandler::description(), std::bind(&ListScenesHandler::handle, &listScenesHandler, std::placeholders::_1)));
