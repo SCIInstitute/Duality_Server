@@ -51,6 +51,7 @@ int main(int argc, const char** argv) {
 
     mocca::fs::Path sciRunPath("C:/Users/dmc/SCIRun5/bin/SCIRun.exe");
     mocca::fs::Path basePath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data");
+    mocca::fs::Path outputPath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data");
 
     CommandLineParser parser;
     parser.addOption(TCPPortOption(tcpEndpoint));
@@ -64,14 +65,14 @@ int main(int argc, const char** argv) {
 
         ListScenesHandler listScenesHandler(basePath);
         DownloadHandler downloadHandler(basePath);
-        SCIRunHandler sciRunHandler(sciRunPath, basePath);
+        PythonHandler pythonHandler(basePath, outputPath);
 
         dispatcher->registerMethod(
             Method(ListScenesHandler::description(), std::bind(&ListScenesHandler::handle, &listScenesHandler, std::placeholders::_1)));
         dispatcher->registerMethod(
             Method(DownloadHandler::description(), std::bind(&DownloadHandler::handle, &downloadHandler, std::placeholders::_1)));
         dispatcher->registerMethod(
-            Method(SCIRunHandler::description(), std::bind(&SCIRunHandler::handle, &sciRunHandler, std::placeholders::_1)));
+            Method(PythonHandler::description(), std::bind(&PythonHandler::handle, &pythonHandler, std::placeholders::_1)));
 
         dispatcher->start();
 

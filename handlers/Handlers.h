@@ -23,13 +23,13 @@ private:
     mocca::fs::Path m_basePath;
 };
 
-class SCIRunHandler {
+class PythonHandler {
 public:
-    SCIRunHandler(const mocca::fs::Path& executablePath, const mocca::fs::Path& networksPath);
+    PythonHandler(const mocca::fs::Path& basePath, const mocca::fs::Path& outputPath);
     static const mocca::net::MethodDescription& description();
     mocca::net::Method::ReturnType handle(const JsonCpp::Value& params);
 
 private:
-    mocca::fs::Path m_executablePath;
     mocca::fs::Path m_basePath;
+    mocca::fs::Path m_outputPath;
 };
