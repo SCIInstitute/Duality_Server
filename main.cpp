@@ -25,6 +25,22 @@ void exitHandler(int s) {
     exitFlag = true;
 }
 
+CommandLineParser::Option DataPathOption(mocca::fs::Path& path) {
+    CommandLineParser::Option option;
+    option.key = "--dataPath";
+    option.help = "Path to scene data (default: ./)";
+    option.callback = [&](const std::string& value) { path = mocca::fs::Path(value); };
+    return option;
+}
+
+CommandLineParser::Option TempPathOption(mocca::fs::Path& path) {
+    CommandLineParser::Option option;
+    option.key = "--tempPath";
+    option.help = "Path to store temporary data (default: " + mocca::fs::tempPath().toString() + ")";
+    option.callback = [&](const std::string& value) { path = mocca::fs::Path(value); };
+    return option;
+}
+
 CommandLineParser::Option TCPPortOption(TCPEndpoint& endpoint) {
     CommandLineParser::Option option;
     option.key = "--tcpPort";
@@ -49,13 +65,14 @@ int main(int argc, const char** argv) {
     TCPEndpoint tcpEndpoint("*", "10123");
     WSEndpoint wsEndpoint("*", "8080");
 
-    mocca::fs::Path sciRunPath("C:/Users/dmc/SCIRun5/bin/SCIRun.exe");
-    mocca::fs::Path basePath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data");
-    mocca::fs::Path outputPath("D:/dmc/Workspace/IV3Dm2/IV3Dm2-server/data");
+    mocca::fs::Path dataPath("./");
+    mocca::fs::Path tempPath(mocca::fs::tempPath());
 
     CommandLineParser parser;
     parser.addOption(TCPPortOption(tcpEndpoint));
     parser.addOption(WSPortOption(wsEndpoint));
+    parser.addOption(DataPathOption(dataPath));
+    parser.addOption(TempPathOption(tempPath));
 
     try {
         parser.parse(argc, argv);
@@ -63,9 +80,9 @@ int main(int argc, const char** argv) {
         std::vector<Endpoint> endpoints{tcpEndpoint, wsEndpoint};
         auto dispatcher = mocca::make_unique<Dispatcher>(endpoints);
 
-        ListScenesHandler listScenesHandler(basePath);
-        DownloadHandler downloadHandler(basePath);
-        PythonHandler pythonHandler(basePath, outputPath);
+        ListScenesHandler listScenesHandler(dataPath);
+        DownloadHandler downloadHandler(dataPath);
+        PythonHandler pythonHandler(dataPath, tempPath);
 
         dispatcher->registerMethod(
             Method(ListScenesHandler::description(), std::bind(&ListScenesHandler::handle, &listScenesHandler, std::placeholders::_1)));

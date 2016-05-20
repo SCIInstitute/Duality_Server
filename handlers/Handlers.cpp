@@ -69,17 +69,24 @@ const mocca::net::MethodDescription& PythonHandler::description() {
 mocca::net::Method::ReturnType PythonHandler::handle(const JsonCpp::Value& params) {
     std::string sceneName = params["scene"].asString();
     mocca::fs::Path path = m_basePath + sceneName + "python" + params["filename"].asString();
-    auto variables = params["variables"];
+    // add script path to args
     std::vector<std::string> args;
     args.push_back(path);
+    // add variables to args
     args.push_back("--variables");
+    auto variables = params["variables"];
     for (auto it = variables.begin(); it != variables.end(); ++it) {
         args.push_back(it.key().asString());
         args.push_back(it->asString());
     }
+    // add output file path to args
     args.push_back("--output");
     mocca::fs::Path outputFilePath = m_outputPath + "temp.out";
     args.push_back(outputFilePath);
+
+    if (mocca::fs::exists(outputFilePath)) {
+        mocca::fs::removeFile(outputFilePath);
+    }
 
     SysUtil::execute(mocca::fs::Path("python.exe"), args);
 
@@ -89,6 +96,7 @@ mocca::net::Method::ReturnType PythonHandler::handle(const JsonCpp::Value& param
         return std::make_pair(root, std::vector<mocca::net::MessagePart>());
     } else {
         auto file = mocca::net::MessagePart(mocca::fs::readBinaryFile(outputFilePath));
+        mocca::fs::removeFile(outputFilePath); // remove temporary file
         JsonCpp::Value root;
         return std::make_pair(root, std::vector<mocca::net::MessagePart>{file});
     }
