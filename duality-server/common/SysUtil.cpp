@@ -24,7 +24,7 @@ TempFile::~TempFile() {
     if (file_.is_open()) {
         file_.close();
     }
-   // mocca::fs::removeFile(path_);
+    mocca::fs::removeFile(path_);
 }
 
 

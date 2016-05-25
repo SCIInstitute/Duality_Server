@@ -33,9 +33,9 @@ void SysUtilImpl::execute(const mocca::fs::Path& binary, const std::vector<std::
         int status;
         pid_t pid = wait(&status);
         if (WIFEXITED(status) && WEXITSTATUS(status) == errorCode) {
-            throw Error("Could not execute SCIRun (child process terminated with error)", __FILE__, __LINE__);
+            throw Error("Could not execute process (child process terminated with error)", __FILE__, __LINE__);
         }
     } else {
-        throw Error("Could not execute SCIRun (fork failed)", __FILE__, __LINE__);
+        throw Error("Could not execute process (fork failed)", __FILE__, __LINE__);
     }
 }
