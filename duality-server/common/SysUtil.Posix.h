@@ -3,7 +3,9 @@
 #include "mocca/fs/Path.h"
 
 #include <string>
+#include <vector>
 
-namespace scirunserver {
-    void executeSCIRun(const mocca::fs::Path& binaryPath, const std::string& args);
-}
+class SysUtilImpl {
+public:
+    static void execute(const mocca::fs::Path& binary, const std::vector<std::string>& args);
+};

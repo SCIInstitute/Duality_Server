@@ -1,4 +1,4 @@
-#include "scirunserver/SysUtil.Posix.h"
+#include "common/SysUtil.Posix.h"
 
 #include "common/Error.h"
 
@@ -13,19 +13,18 @@
 #include <chrono>
 #include <thread>
 
-void scirunserver::executeSCIRun(const mocca::fs::Path& binaryPath, const std::string& args) {
+void SysUtilImpl::execute(const mocca::fs::Path& binary, const std::vector<std::string>& args) {
     const int errorCode = 17;
     pid_t childPid = fork();
     if (childPid == 0) { // this process is child
-        std::string binaryPathStr = binaryPath.toString();
-        auto argVec = mocca::splitString<std::string>(args, ' ');
+        std::string binaryPathStr = binary.toString();
         std::unique_ptr<char*[]> cArgs(new char*[args.size()]);
         cArgs[0] = const_cast<char*>(binaryPathStr.data());
-        for (size_t i = 0; i < argVec.size(); ++i) {
-            cArgs[i + 1] = const_cast<char*>(argVec[i].data());
+        for (size_t i = 0; i < args.size(); ++i) {
+            cArgs[i + 1] = const_cast<char*>(args[i].data());
         }
-        cArgs[argVec.size() + 1] = NULL;
-        chdir(binaryPath.directory().data());
+        cArgs[args.size() + 1] = NULL;
+        chdir(binary.directory().data());
         if (execv(binaryPathStr.data(), cArgs.get()) == -1) {
             exit(errorCode);
         }
