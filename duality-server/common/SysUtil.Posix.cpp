@@ -25,7 +25,7 @@ void SysUtilImpl::execute(const mocca::fs::Path& binary, const std::vector<std::
         }
         cArgs[args.size() + 1] = NULL;
         chdir(binary.directory().data());
-        if (execv(binaryPathStr.data(), cArgs.get()) == -1) {
+        if (execvp(binaryPathStr.data(), cArgs.get()) == -1) {
             exit(errorCode);
         }
     } else if (childPid > 0) { // this process is parent

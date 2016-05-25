@@ -92,7 +92,7 @@ mocca::net::Method::ReturnType PythonHandler::handle(const JsonCpp::Value& param
         mocca::fs::removeFile(outputFilePath);
     }
 
-    SysUtil::execute(mocca::fs::Path("python.exe"), args);
+    SysUtil::execute(mocca::fs::Path("python"), args);
 
     if (!mocca::fs::exists(outputFilePath)) {
         LERROR("File '" << outputFilePath.toString() << "' does not exist");
