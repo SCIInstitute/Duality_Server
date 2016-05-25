@@ -84,6 +84,10 @@ mocca::net::Method::ReturnType PythonHandler::handle(const JsonCpp::Value& param
     mocca::fs::Path outputFilePath = m_outputPath + "temp.out";
     args.push_back(outputFilePath);
 
+    //add base path to args
+    args.push_back("--scenepath");
+    args.push_back((m_basePath + sceneName).toString());
+
     if (mocca::fs::exists(outputFilePath)) {
         mocca::fs::removeFile(outputFilePath);
     }
