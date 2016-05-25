@@ -1,0 +1,82 @@
+{
+	"metadata":
+	{
+		"name": "switch",
+		"description": "Switch between multiple datasets"
+	},
+	"scene":
+	[
+		{
+			"name": "static content",
+			"source":
+			{
+				"type": "download",
+				"filename": "Pallidus.g3d"
+			},
+			"dataset":
+			{
+				"type": "geometry"
+			}
+		},
+		
+		{
+			"name": "float switch",
+			"source":
+			{
+				"type": "python",
+				"filename": "floatswitch.py",
+				"variables":
+				[
+					{
+						"type": "float",
+						"name": "value",
+						"lowerBound": 1,
+						"upperBound": 2,
+						"stepSize": 1,
+						"defaultValue": 1
+					}
+				]
+			},
+			"dataset":
+			{
+				"type": "geometry",
+				"transforms":
+				[
+					[0, 0, 0, 2,
+					 0, 1, 0, 0,
+					 0, 0, 1, 0,
+					 0, 0, 0, 1]
+				]
+			}
+		},
+
+		{
+			"name": "enum switch",
+			"source":
+			{
+				"type": "python",
+				"filename": "enumswitch.py",
+				"variables":
+				[
+					{
+						"type": "enum",
+						"name": "value",
+						"values": [ "STN", "Thalamus" ],
+						"defaultValue": "STN"
+					}
+				]
+			},
+			"dataset":
+			{
+				"type": "geometry",
+				"transforms":
+				[
+					[0, 0, 0, -2,
+					 0, 1, 0, 0,
+					 0, 0, 1, 0,
+					 0, 0, 0, 1]
+				]
+			}
+		}		
+	]
+}
