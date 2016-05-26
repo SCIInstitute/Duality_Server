@@ -18,7 +18,7 @@ void SysUtilImpl::execute(const mocca::fs::Path& binary, const std::vector<std::
     pid_t childPid = fork();
     if (childPid == 0) { // this process is child
         std::string binaryPathStr = binary.toString();
-        std::unique_ptr<char*[]> cArgs(new char*[args.size()]);
+        std::unique_ptr<char*[]> cArgs(new char*[args.size() + 2]);
         cArgs[0] = const_cast<char*>(binaryPathStr.data());
         for (size_t i = 0; i < args.size(); ++i) {
             cArgs[i + 1] = const_cast<char*>(args[i].data());
