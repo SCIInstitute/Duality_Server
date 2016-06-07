@@ -22,13 +22,13 @@ Method::ReturnType ListScenesHandler::handle(const JsonCpp::Value& params) {
         if (mocca::fs::isDirectory(path)) {
             mocca::fs::Path scenePath = path + "scene.json";
             if (!mocca::fs::exists(scenePath)) {
-                LERROR("Scene definition file '" << scenePath.toString() << "' does not exist");
+                throw std::runtime_error("Scene definition file '" + scenePath.toString() + "' does not exist");
             } else {
                 JsonCpp::Reader reader;
                 JsonCpp::Value root;
                 std::string jsonStr = mocca::fs::readTextFile(scenePath);
                 if (!reader.parse(jsonStr, root)) {
-                    LERROR("Error parsing JSON: " << reader.getFormattedErrorMessages());
+                    throw std::runtime_error("Error parsing JSON file '" + scenePath.toString() + "': " +  reader.getFormattedErrorMessages());
                 } else {
                     result.first.append(root);
                 }
@@ -69,6 +69,10 @@ const mocca::net::MethodDescription& PythonHandler::description() {
 mocca::net::Method::ReturnType PythonHandler::handle(const JsonCpp::Value& params) {
     std::string sceneName = params["scene"].asString();
     mocca::fs::Path path = m_basePath + sceneName + "python" + params["filename"].asString();
+    if (!mocca::fs::exists(path)) {
+        throw std::runtime_error("Python file '" + path.toString() + "' does not exist");
+    }
+
     // add script path to args
     std::vector<std::string> args;
     args.push_back(path);
