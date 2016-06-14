@@ -1,0 +1,22 @@
+{
+	"metadata":
+	{
+		"name": "volume",
+		"description": "Volume datasets"
+	},
+	"scene":
+	[
+		{
+			"name": "volume dataset",
+			"type": "volume",
+			"dataset":
+			{
+				"source":
+				{
+					"type": "download",
+					"filename": "hand.i3m"
+				}
+			}
+		}
+	]
+}

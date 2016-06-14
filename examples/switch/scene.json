@@ -8,70 +8,68 @@
 	[
 		{
 			"name": "static content",
-			"source":
-			{
-				"type": "download",
-				"filename": "Pallidus.g3d"
-			},
+			"type": "geometry",
 			"dataset":
 			{
-				"type": "geometry"
+				"source":
+				{
+					"type": "download",
+					"filename": "Pallidus.g3d"
+				}
 			}
 		},
-		
 		{
 			"name": "float switch",
-			"source":
-			{
-				"type": "python",
-				"filename": "floatswitch.py",
-				"variables":
-				[
-					{
-						"type": "float",
-						"name": "value",
-						"lowerBound": 1,
-						"upperBound": 2,
-						"stepSize": 1,
-						"defaultValue": 1
-					}
-				]
-			},
+			"type": "geometry",
 			"dataset":
 			{
-				"type": "geometry",
+				"source":
+				{
+					"type": "python",
+					"filename": "floatswitch.py",
+					"variables":
+					[
+						{
+							"type": "float",
+							"name": "value",
+							"lowerBound": 1,
+							"upperBound": 2,
+							"stepSize": 1,
+							"defaultValue": 1
+						}
+					]
+				},
 				"transforms":
 				[
-					[0, 0, 0, 2,
+					[1, 0, 0, 2,
 					 0, 1, 0, 0,
 					 0, 0, 1, 0,
 					 0, 0, 0, 1]
 				]
 			}
 		},
-
 		{
 			"name": "enum switch",
-			"source":
-			{
-				"type": "python",
-				"filename": "enumswitch.py",
-				"variables":
-				[
-					{
-						"type": "enum",
-						"name": "value",
-						"values": [ "STN", "Thalamus" ],
-						"defaultValue": "STN"
-					}
-				]
-			},
+			"type": "geometry",
 			"dataset":
 			{
-				"type": "geometry",
+				"source":
+				{
+					"type": "python",
+					"filename": "enumswitch.py",
+					"variables":
+					[
+						{
+							"type": "enum",
+							"name": "value",
+							"values": [ "STN", "Thalamus" ],
+							"defaultValue": "STN"
+						}
+					]
+				},
 				"transforms":
 				[
-					[0, 0, 0, -2,
+					[1, 0, 0, -2,
 					 0, 1, 0, 0,
 					 0, 0, 1, 0,
 					 0, 0, 0, 1]
