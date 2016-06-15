@@ -16,6 +16,14 @@
 					"type": "download",
 					"filename": "hand.i3m"
 				}
+			},
+			"tf":
+			{
+				"source":
+				{
+					"type": "download",
+					"filename": "hand.i3m.1dt"
+				}
 			}
 		}
 	]
