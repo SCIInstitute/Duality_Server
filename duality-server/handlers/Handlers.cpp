@@ -22,7 +22,7 @@ Method::ReturnType ListScenesHandler::handle(const JsonCpp::Value& params) {
         if (mocca::fs::isDirectory(path)) {
             mocca::fs::Path scenePath = path + "scene.json";
             if (!mocca::fs::exists(scenePath)) {
-                throw std::runtime_error("Scene definition file '" + scenePath.toString() + "' does not exist");
+                LWARNING("The directory '" << path << "' does not contain a scene.json file");
             } else {
                 JsonCpp::Reader reader;
                 JsonCpp::Value root;

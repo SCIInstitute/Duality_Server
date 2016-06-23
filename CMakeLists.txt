@@ -7,6 +7,7 @@ ADD_SUBDIRECTORY(mocca/ext/AES)
 ADD_SUBDIRECTORY(mocca/ext/base64)
 ADD_SUBDIRECTORY(mocca/ext/jsoncpp)
 ADD_SUBDIRECTORY(mocca/ext/sha1)
+ADD_SUBDIRECTORY(mocca/ext/lz4)
 ADD_SUBDIRECTORY(mocca/mocca)
 
 IF (WIN32)

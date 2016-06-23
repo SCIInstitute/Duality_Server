@@ -5,6 +5,7 @@
 #include "mocca/base/CommandLineParser.h"
 #include "mocca/base/Memory.h"
 #include "mocca/fs/Filesystem.h"
+#include "mocca/log/ConsoleLog.h"
 #include "mocca/log/LogManager.h"
 #include "mocca/net/ConnectionFactorySelector.h"
 #include "mocca/net/rpc/Dispatcher.h"
@@ -59,6 +60,11 @@ CommandLineParser::Option WSPortOption(WSEndpoint& endpoint) {
 
 int main(int argc, const char** argv) {
     signal(SIGINT, exitHandler);
+
+    using mocca::LogManager;
+    LogManager::initialize(LogManager::LogLevel::Debug, true);
+    auto console = new mocca::ConsoleLog();
+    LogMgr.addLog(console);
 
     ConnectionFactorySelector::addDefaultFactories();
 
