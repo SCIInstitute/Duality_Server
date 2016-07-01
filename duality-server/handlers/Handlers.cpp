@@ -5,6 +5,8 @@
 #include "mocca/fs/Filesystem.h"
 #include "mocca/log/LogManager.h"
 
+#include <memory>
+
 using namespace mocca::net;
 
 ListScenesHandler::ListScenesHandler(const mocca::fs::Path& basePath)
@@ -16,6 +18,8 @@ const MethodDescription& ListScenesHandler::description() {
 }
 
 Method::ReturnType ListScenesHandler::handle(const JsonCpp::Value& params) {
+    auto test = std::make_unique<std::vector<char>>();
+    
     Method::ReturnType result;
     auto dirContents = mocca::fs::directoryContents(m_basePath);
     for (const auto& path : dirContents) {

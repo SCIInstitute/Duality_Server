@@ -31,7 +31,7 @@ void SysUtilImpl::execute(const mocca::fs::Path& binary, const std::vector<std::
     } else if (childPid > 0) { // this process is parent
         // wait for child to terminate
         int status;
-        pid_t pid = wait(&status);
+        wait(&status);
         if (WIFEXITED(status) && WEXITSTATUS(status) == errorCode) {
             throw Error("Could not execute process (child process terminated with error)", __FILE__, __LINE__);
         }

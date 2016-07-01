@@ -1,7 +1,5 @@
 #pragma once
 
-#include "handlers/TemplateProcessor.h"
-
 #include "mocca/fs/Path.h"
 #include "mocca/net/rpc/Method.h"
 

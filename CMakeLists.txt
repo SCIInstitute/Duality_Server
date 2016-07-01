@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.2.0)
 PROJECT(duality-server LANGUAGES CXX)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS on)
@@ -22,21 +22,11 @@ ADD_EXECUTABLE(duality-server
 	duality-server/common/SysUtil.cpp
 	${PLATFORM_SOURCES}	
 	duality-server/handlers/Handlers.cpp
-	duality-server/handlers/TemplateProcessor.cpp
 	duality-server/main.cpp)
 
 TARGET_INCLUDE_DIRECTORIES(
 	duality-server PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/duality-server)
 
-TARGET_COMPILE_FEATURES(duality-server
-    PUBLIC cxx_auto_type
-	PUBLIC cxx_lambdas
-	PUBLIC cxx_nullptr
-	PUBLIC cxx_override
-	PUBLIC cxx_range_for
-	PUBLIC cxx_rvalue_references
-	PUBLIC cxx_static_assert
-	PUBLIC cxx_strong_enums
-	PUBLIC cxx_uniform_initialization)
-	
+SET_PROPERTY(TARGET duality-server PROPERTY CXX_STANDARD 14)
+
 TARGET_LINK_LIBRARIES(duality-server PRIVATE mocca)
