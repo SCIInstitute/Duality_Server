@@ -59,16 +59,18 @@ def writeHeader(file, header):
 	file.write(bin)
 	
 def writeIndices(file, indices):
-	format = '=' + str(len(indices)) + 'I'
-	bin = struct.pack(format, *indices)
-	file.write(bin)
+	format = '=I'
+	for i in indices:
+		bin = struct.pack(format, i - 1)
+		file.write(bin)
 
 def writeAttributes(file, attributes):
-	for a in attributes.itervalues():
-		for v in a:
-			format = str(len(v)) + 'f'
-			bin = struct.pack(format, *v)
-			file.write(bin)
+	for info in vertexAttributeInfo.itervalues():
+		if info.name in attributes:
+			for v in attributes[info.name]:
+				format = str(len(v)) + 'f'
+				bin = struct.pack(format, *v)
+				file.write(bin)
 
 def writeG3D(g, filename):
 	file = open(filename, 'wb')
