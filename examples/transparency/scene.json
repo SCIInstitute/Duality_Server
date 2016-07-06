@@ -1,0 +1,123 @@
+{
+	"metadata":
+	{
+		"name": "transparency",
+		"description": "Scene with transparent objects"
+	},
+	"webViewURL": "http://sci.utah.edu",
+	"scene":
+	[
+		{
+			"name": "sphere",
+			"type": "geometry",
+			"dataset":
+			{
+				"source":
+				{
+					"type": "download",
+					"filename": "sphere.g3d"
+				},
+				"transforms":
+				[
+				[0.3, 0, 0, 0,
+				 0, 0.3, 0, 0,
+				 0, 0, 0.3, 0,
+				 0, 0, 0, 1],
+				[1, 0, 0, -1,
+				 0, 1, 0, -1,
+				 0, 0, 1, 0,
+				 0, 0, 0, 1]
+				]				
+			}
+		},
+		{
+			"name": "tetrahedron",
+			"type": "geometry",
+			"dataset":
+			{
+				"source":
+				{
+					"type": "download",
+					"filename": "tetra.g3d"
+				},
+				"transforms":
+				[
+				[0.3, 0, 0, 0,
+				 0, 0.3, 0, 0,
+				 0, 0, 0.3, 0,
+				 0, 0, 0, 1],
+				[1, 0, 0, 1,
+				 0, 1, 0, 0,
+				 0, 0, 1, 0,
+				 0, 0, 0, 1]
+				]
+			}
+		},
+		{
+			"name": "torus",
+			"type": "geometry",
+			"dataset":
+			{
+				"source":
+				{
+					"type": "download",
+					"filename": "torus.g3d"
+				},
+				"transforms":
+				[
+				[0.1, 0, 0, 0,
+				 0, 0.1, 0, 0,
+				 0, 0, 0.1, 0,
+				 0, 0, 0, 1],
+				[1, 0, 0, 0,
+				 0, 1, 0, 0,
+				 0, 0, 1, 1,
+				 0, 0, 0, 1]				 
+				]
+			}
+		},
+		{
+			"name": "dodecahedron",
+			"type": "geometry",
+			"dataset":
+			{
+				"source":
+				{
+					"type": "download",
+					"filename": "dodec.g3d"
+				},
+				"transforms":
+				[
+				 [0.1, 0, 0, 0,
+				 0, 0.1, 0, 0,
+				 0, 0, 0.1, 0,
+				 0, 0, 0, 1],
+				 [1, 0, 0, -1,
+				 0, 1, 0, 0,
+				 0, 0, 1, 0,
+				 0, 0, 0, 1]
+				]
+			}
+		},
+		{
+			"name": "volume dataset",
+			"type": "volume",
+			"dataset":
+			{
+				"source":
+				{
+					"type": "download",
+					"filename": "hand.i3m"
+				}
+			},
+			"tf":
+			{
+				"source":
+				{
+					"type": "download",
+					"filename": "hand.i3m.1dt"
+				}
+			}
+		}
+	]
+}
