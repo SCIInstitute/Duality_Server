@@ -4,6 +4,7 @@
 		"name": "switch",
 		"description": "Switch between multiple datasets"
 	},
+	"webViewURL": "http://sci.utah.edu",
 	"scene":
 	[
 		{
@@ -14,67 +15,28 @@
 				"source":
 				{
 					"type": "download",
-					"filename": "Pallidus.g3d"
+					"filename": "test2.g3d"
 				}
 			}
 		},
 		{
-			"name": "float switch",
+			"name": "static content 2",
 			"type": "geometry",
 			"dataset":
 			{
 				"source":
 				{
-					"type": "python",
-					"filename": "floatswitch.py",
-					"variables":
-					[
-						{
-							"type": "float",
-							"name": "value",
-							"lowerBound": 1,
-							"upperBound": 2,
-							"stepSize": 1,
-							"defaultValue": 1
-						}
-					]
+					"type": "download",
+					"filename": "test3.g3d"
 				},
 				"transforms":
 				[
-					[1, 0, 0, 2,
-					 0, 1, 0, 0,
-					 0, 0, 1, 0,
-					 0, 0, 0, 1]
+				[1, 0, 0, 15,
+				 0, 1, 0, 0,
+				 0, 0, 1, 0,
+				 0, 0, 0, 1]
 				]
 			}
-		},
-		{
-			"name": "enum switch",
-			"type": "geometry",
-			"dataset":
-			{
-				"source":
-				{
-					"type": "python",
-					"filename": "enumswitch.py",
-					"variables":
-					[
-						{
-							"type": "enum",
-							"name": "value",
-							"values": [ "STN", "Thalamus" ],
-							"defaultValue": "STN"
-						}
-					]
-				},
-				"transforms":
-				[
-					[1, 0, 0, -2,
-					 0, 1, 0, 0,
-					 0, 0, 1, 0,
-					 0, 0, 0, 1]
-				]
-			}
-		}		
+		}
 	]
 }
